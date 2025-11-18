@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './BugSquashGame.css';
 
-const GAME_WIDTH = 600;
-const GAME_HEIGHT = 300;
+const GAME_WIDTH = 900;
+const GAME_HEIGHT = 500;
 
 const BUG_SIZE = 40;
 const CODE_SIZE = 60;
@@ -37,14 +37,23 @@ const BugSquashGame: React.FC = () => {
   const timerRef = useRef<number | null>(null);
 
 
-  // Move bugs and code every 1s
+
+  // Move bugs every 1s
   useEffect(() => {
     if (!running) return;
-    const moveInterval = setInterval(() => {
+    const bugInterval = setInterval(() => {
       setBugs(bugs => bugs.map(() => getRandomBugPosition()));
-      setCodes(codes => codes.map(() => getRandomCodePosition()));
     }, 1000);
-    return () => clearInterval(moveInterval);
+    return () => clearInterval(bugInterval);
+  }, [running]);
+
+  // Move code blocks every 300ms
+  useEffect(() => {
+    if (!running) return;
+    const codeInterval = setInterval(() => {
+      setCodes(codes => codes.map(() => getRandomCodePosition()));
+    }, 300);
+    return () => clearInterval(codeInterval);
   }, [running]);
 
   // Timer logic
@@ -103,7 +112,7 @@ const BugSquashGame: React.FC = () => {
       <button className="bug-squash-start" onClick={startGame} disabled={running}>
         {running ? 'Game Running...' : 'Start Game'}
       </button>
-      <div className="bug-squash-game-area" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
+  <div className="bug-squash-game-area" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
         {/* Bugs */}
         {bugs.map((bug, idx) => (
           <div
