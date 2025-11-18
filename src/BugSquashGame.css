@@ -37,10 +37,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: left 0.3s, top 0.3s, transform 0.2s cubic-bezier(.68,-0.55,.27,1.55);
 }
 
 .bug-squash-bug:hover {
   filter: brightness(1.2) drop-shadow(0 0 8px #f59e42);
+}
+
+.bug-squash-bug.squashed {
+  transform: scaleY(0.4) scaleX(1.2) rotate(-10deg);
+  filter: brightness(0.7) blur(1px);
 }
 
 .bug-squash-code {

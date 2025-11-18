@@ -1,4 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
+// Generate squash sound effect using Web Audio API
+let squashAudioCtx: AudioContext | null = null;
+function playSquashSound() {
+  try {
+    if (!squashAudioCtx || squashAudioCtx.state === 'closed') {
+      squashAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const ctx = squashAudioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(60, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.25);
+    osc.onended = () => {
+      osc.disconnect();
+      gain.disconnect();
+    };
+  } catch (e) {
+    // Ignore errors
+  }
+}
 // Leaderboard API constants
 const API_URL = 'https://bafgo.com/api/dynamic/champleader';
 const API_TOKEN = '5219f6fd95dc4e6cc485ba78664179306e697650700c727b694e049e7f0e9316';
@@ -47,6 +74,8 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
   const [regressions, setRegressions] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_TIME);
   const [bugs, setBugs] = useState(Array.from({ length: BUG_COUNT }, getRandomBugPosition));
+  const [squashedIdx, setSquashedIdx] = useState<number | null>(null);
+  // No audioRef needed for Web Audio API
   const [codes, setCodes] = useState(Array.from({ length: CODE_COUNT }, getRandomCodePosition));
   const [running, setRunning] = useState(false);
   const [displayName, setDisplayName] = useState(() => localStorage.getItem('displayName') || '');
@@ -218,7 +247,12 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
   const squashBug = (idx: number) => {
     if (!running) return;
     setScore(s => s + 1);
-    setBugs(bugs => bugs.map((bug, i) => (i === idx ? getRandomBugPosition() : bug)));
+    setSquashedIdx(idx);
+    playSquashSound();
+    setTimeout(() => {
+      setBugs(bugs => bugs.map((bug, i) => (i === idx ? getRandomBugPosition() : bug)));
+      setSquashedIdx(null);
+    }, 200);
   };
 
 
@@ -262,6 +296,21 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
             </div>
           )}
           <div className="bug-squash-info">
+          <button
+            style={{
+              marginBottom: '1rem',
+              padding: '0.5rem 1.5rem',
+              fontSize: '1rem',
+              background: '#f59e42',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '0.75rem',
+              cursor: 'pointer',
+              fontWeight: 600,
+              boxShadow: '0 2px 8px rgba(245,158,66,0.10)',
+            }}
+            onClick={playSquashSound}
+          >Test Squash Sound</button>
             <span>Bugs Fixed: <b>{score}</b></span>
             <span>Regressions: <b style={{ color: regressions > 0 ? '#dc2626' : '#334155' }}>{regressions}</b></span>
             <span>Time: <b>{timeLeft}</b>s</span>
@@ -335,7 +384,7 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
             {bugs.map((bug, idx) => (
               <div
                 key={"bug-" + idx}
-                className="bug-squash-bug"
+                className={`bug-squash-bug${squashedIdx === idx ? ' squashed' : ''}`}
                 style={{ left: bug.left, top: bug.top, width: BUG_SIZE, height: BUG_SIZE }}
                 onClick={() => squashBug(idx)}
               >
@@ -351,6 +400,7 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
                 </svg>
               </div>
             ))}
+            {/* No audio element needed for Web Audio API */}
             {/* Code blocks */}
             {codes.map((code, idx) => (
               <div
