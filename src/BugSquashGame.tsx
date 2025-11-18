@@ -28,9 +28,18 @@ function getRandomCodePosition() {
   };
 }
 
-const BugSquashGame: React.FC = () => {
-  // Navigation state
-  const [view, setView] = useState<'home' | 'leader'>('home');
+interface BugSquashGameProps {
+  view?: 'bug' | 'leader';
+  setView?: (v: 'home' | 'bug' | 'leader') => void;
+}
+
+const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: propSetView }) => {
+  // Internal navigation state if not provided by props
+  const [internalView, setInternalView] = useState<'bug' | 'leader'>(propView || 'bug');
+  const view = propView || internalView;
+  const setView = propSetView || ((v: 'home' | 'bug' | 'leader') => {
+    if (v === 'bug' || v === 'leader') setInternalView(v);
+  });
 
 
 
@@ -239,11 +248,12 @@ const BugSquashGame: React.FC = () => {
         fontWeight: 600,
         boxShadow: '0 2px 12px rgba(99,102,241,0.10)',
       }}>
-        <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', color: view === 'home' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'home' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Home</button>
+        <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', color: propView ? '#e0e7ff' : '#fff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: propView ? 'none' : '3px solid #fff', borderRadius: '0.5rem 0.5rem 0 0' }}>Home</button>
+        <button onClick={() => setView('bug')} style={{ background: 'none', border: 'none', color: view === 'bug' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'bug' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Bug Squash</button>
         <button onClick={() => setView('leader')} style={{ background: 'none', border: 'none', color: view === 'leader' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'leader' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Leader</button>
       </nav>
-      {/* Home View: Game UI */}
-      {view === 'home' && (
+      {/* Bug Squash View: Game UI */}
+      {view === 'bug' && (
         <>
           <h2>Bug Squash Game</h2>
           {displayName && (
