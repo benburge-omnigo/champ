@@ -85,7 +85,7 @@ function App() {
               color: '#334155',
               textAlign: 'left',
             }}>
-              Welcome to the Omnigo Champion app. Celebrate your achievements and explore new challenges!
+            Squash bugs, claim glory, become a champion!
             </p>
             <button
               style={{

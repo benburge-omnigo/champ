@@ -61,6 +61,8 @@ interface BugSquashGameProps {
 }
 
 const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: propSetView }) => {
+  // Show score before leaderboard
+  const [showScore, setShowScore] = useState(false);
   // Internal navigation state if not provided by props
   const [internalView, setInternalView] = useState<'bug' | 'leader' | 'thanks'>(propView || 'bug');
   const view = propView || internalView;
@@ -193,11 +195,11 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
     return () => clearInterval(timerRef.current!);
   }, [running]);
 
-  // When game ends, post score and show leaderboard
+  // When game ends, post score and show score screen
   useEffect(() => {
     if (!running && timeLeft === 0) {
       postScore();
-      setView('leader');
+      setShowScore(true);
     }
     // eslint-disable-next-line
   }, [running, timeLeft]);
@@ -445,12 +447,30 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
                 </pre>
               </div>
             ))}
-            {!running && timeLeft !== GAME_TIME && (
+            {!running && timeLeft !== GAME_TIME && showScore && (
               <div className="bug-squash-end">
                 <h3>Game Over!</h3>
                 <p>Bugs Fixed: <b>{score}</b></p>
                 <p>Regressions: <b style={{ color: regressions > 0 ? '#dc2626' : '#334155' }}>{regressions}</b></p>
                 <p>🎉 Omnigo Champion! 🎉</p>
+                <button
+                  style={{
+                    marginTop: '1.5rem',
+                    padding: '0.75rem 2rem',
+                    fontSize: '1.15rem',
+                    background: '#6366f1',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '1rem',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    boxShadow: '0 2px 8px rgba(99,102,241,0.10)',
+                  }}
+                  onClick={() => {
+                    setShowScore(false);
+                    setView('leader');
+                  }}
+                >View Leaderboard</button>
               </div>
             )}
           </div>
