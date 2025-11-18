@@ -56,16 +56,16 @@ function getRandomCodePosition() {
 }
 
 interface BugSquashGameProps {
-  view?: 'bug' | 'leader';
-  setView?: (v: 'home' | 'bug' | 'leader') => void;
+  view?: 'bug' | 'leader' | 'thanks';
+  setView?: (v: 'home' | 'bug' | 'leader' | 'thanks') => void;
 }
 
 const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: propSetView }) => {
   // Internal navigation state if not provided by props
-  const [internalView, setInternalView] = useState<'bug' | 'leader'>(propView || 'bug');
+  const [internalView, setInternalView] = useState<'bug' | 'leader' | 'thanks'>(propView || 'bug');
   const view = propView || internalView;
-  const setView = propSetView || ((v: 'home' | 'bug' | 'leader') => {
-    if (v === 'bug' || v === 'leader') setInternalView(v);
+  const setView = propSetView || ((v: 'home' | 'bug' | 'leader' | 'thanks') => {
+    if (v === 'bug' || v === 'leader' || v === 'thanks') setInternalView(v);
   });
 
 
@@ -300,9 +300,10 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
         fontWeight: 600,
         boxShadow: '0 2px 12px rgba(99,102,241,0.10)',
       }}>
-        <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', color: propView ? '#e0e7ff' : '#fff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: propView ? 'none' : '3px solid #fff', borderRadius: '0.5rem 0.5rem 0 0' }}>Home</button>
-        <button onClick={() => setView('bug')} style={{ background: 'none', border: 'none', color: view === 'bug' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'bug' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Bug Squash</button>
-        <button onClick={() => setView('leader')} style={{ background: 'none', border: 'none', color: view === 'leader' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'leader' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Leader</button>
+  <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', color: propView ? '#e0e7ff' : '#fff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: propView ? 'none' : '3px solid #fff', borderRadius: '0.5rem 0.5rem 0 0' }}>Home</button>
+  <button onClick={() => setView('bug')} style={{ background: 'none', border: 'none', color: view === 'bug' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'bug' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Bug Squash</button>
+  <button onClick={() => setView('leader')} style={{ background: 'none', border: 'none', color: view === 'leader' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'leader' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Leader</button>
+  <button onClick={() => setView('thanks')} style={{ background: 'none', border: 'none', color: view === 'thanks' ? '#fff' : '#e0e7ff', cursor: 'pointer', padding: '0.5rem 1.5rem', borderBottom: view === 'thanks' ? '3px solid #fff' : 'none', borderRadius: '0.5rem 0.5rem 0 0' }}>Thanks</button>
       </nav>
       {/* Bug Squash View: Game UI */}
       {view === 'bug' && (
