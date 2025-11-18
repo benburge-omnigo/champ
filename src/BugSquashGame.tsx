@@ -474,9 +474,9 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
       )}
       {/* Leaderboard View: Only show when view is 'leader' */}
       {view === 'leader' && (
-        <div className="bug-squash-leaderboard" style={{ marginTop: '2.5rem', background: '#f3f4f6', borderRadius: '1.5rem', boxShadow: '0 4px 24px rgba(99,102,241,0.10)', padding: '2rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-          <h3 style={{ color: '#6366f1', fontWeight: 700, fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>Leaderboard</h3>
-          <button onClick={fetchLeaderboard} style={{ marginBottom: '1rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '0.75rem', padding: '0.5rem 1.5rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 600 }}>Refresh</button>
+        <div className="bug-squash-leaderboard" style={{ marginTop: '2.5rem', background: '#f3f4f6', borderRadius: '1.5rem', boxShadow: '0 4px 24px rgba(99,102,241,0.10)', padding: '2rem', maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto', position: 'relative' }}>
+          <h3 style={{ color: '#6366f1', fontWeight: 700, fontSize: '2rem', marginBottom: '1rem', textAlign: 'center', letterSpacing: '0.05em' }}>Leaderboard</h3>
+          <button onClick={fetchLeaderboard} style={{ marginBottom: '1rem', background: 'linear-gradient(90deg,#6366f1,#f59e42)', color: '#fff', border: 'none', borderRadius: '0.75rem', padding: '0.5rem 1.5rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 600, boxShadow: '0 2px 8px rgba(99,102,241,0.10)' }}>Refresh</button>
           {loadingLeaderboard ? (
             <div style={{ textAlign: 'center', color: '#64748b' }}>Loading...</div>
           ) : errorLeaderboard ? (
@@ -484,36 +484,69 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
           ) : leaderboard.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#64748b' }}>No scores yet.</div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1.1rem' }}>
-              <thead>
-                <tr style={{ background: '#e0e7ff' }}>
-                  <th style={{ padding: '0.5rem', borderRadius: '0.5rem 0 0 0.5rem' }}>Name</th>
-                  <th style={{ padding: '0.5rem' }}>Score</th>
-                  <th style={{ padding: '0.5rem' }}>Regressions</th>
-                  <th style={{ padding: '0.5rem', borderRadius: '0 0.5rem 0.5rem 0' }}>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaderboard.slice(0, 10).map((entry, idx) => (
-                  <tr key={idx} style={{ background: idx % 2 === 0 ? '#fff' : '#f1f5f9' }}>
-                    <td style={{ padding: '0.5rem', fontWeight: entry.name === displayName ? 700 : 400, color: entry.name === displayName ? '#6366f1' : '#334155', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {entry.name}
-                      {idx === 0 && (
-                        <span title="Top Score" style={{ verticalAlign: 'middle' }}>
-                          {/* Trophy SVG */}
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="gold" style={{ marginLeft: '0.2rem' }}>
-                            <path d="M7 2v2H3v2c0 3.31 2.69 6 6 6h1v3H8v2h8v-2h-2v-3h1c3.31 0 6-2.69 6-6V4h-4V2H7zm10 4c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4V4h10v2z"/>
-                          </svg>
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: '0.5rem', textAlign: 'center' }}>{entry.score}</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'center', color: entry.regressions > 0 ? '#dc2626' : '#334155' }}>{entry.regressions}</td>
-                    <td style={{ padding: '0.5rem', fontSize: '0.95rem', color: '#64748b' }}>{new Date(entry.date).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              {/* Podium for top 3 */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '2.5rem', marginBottom: '2.5rem', width: '100%' }}>
+                {/* Second Place */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
+                  <div style={{ fontWeight: 600, color: '#64748b', fontSize: '1.15rem', marginBottom: '0.5rem' }}>2nd</div>
+                  <div style={{ background: 'linear-gradient(180deg,#e0e7ff,#cbd5e1)', borderRadius: '1rem 1rem 0 0', width: '110px', height: '90px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(99,102,241,0.10)', border: '3px solid #a3a3a3' }}>
+                    <div style={{ fontWeight: 700, color: leaderboard[1]?.name === displayName ? '#6366f1' : '#64748b', fontSize: '1.2rem', marginBottom: '0.2rem' }}>{leaderboard[1]?.name || '-'}</div>
+                    <div style={{ color: '#334155', fontSize: '1.1rem' }}>Score: <b>{leaderboard[1]?.score ?? '-'}</b></div>
+                    <div style={{ color: leaderboard[1]?.regressions > 0 ? '#dc2626' : '#334155', fontSize: '0.95rem' }}>Reg: {leaderboard[1]?.regressions ?? '-'}</div>
+                  </div>
+                </div>
+                {/* First Place */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
+                  <div style={{ fontWeight: 600, color: '#f59e42', fontSize: '1.25rem', marginBottom: '0.5rem' }}>1st</div>
+                  <div style={{ background: 'linear-gradient(180deg,#f59e42,#fde68a)', borderRadius: '1rem 1rem 0 0', width: '130px', height: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 32px rgba(245,158,66,0.18)', border: '4px solid #f59e42', position: 'relative' }}>
+                    <span style={{ position: 'absolute', top: '-32px', left: '50%', transform: 'translateX(-50%)', }}>
+                      {/* Trophy SVG */}
+                      <svg width="38" height="38" viewBox="0 0 24 24" fill="gold" style={{ filter: 'drop-shadow(0 2px 8px #f59e42)' }}>
+                        <path d="M7 2v2H3v2c0 3.31 2.69 6 6 6h1v3H8v2h8v-2h-2v-3h1c3.31 0 6-2.69 6-6V4h-4V2H7zm10 4c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4V4h10v2z"/>
+                      </svg>
+                    </span>
+                    <div style={{ fontWeight: 700, color: leaderboard[0]?.name === displayName ? '#6366f1' : '#f59e42', fontSize: '1.35rem', marginBottom: '0.2rem', marginTop: '0.5rem' }}>{leaderboard[0]?.name || '-'}</div>
+                    <div style={{ color: '#334155', fontSize: '1.15rem' }}>Score: <b>{leaderboard[0]?.score ?? '-'}</b></div>
+                    <div style={{ color: leaderboard[0]?.regressions > 0 ? '#dc2626' : '#334155', fontSize: '1rem' }}>Reg: {leaderboard[0]?.regressions ?? '-'}</div>
+                  </div>
+                </div>
+                {/* Third Place */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1 }}>
+                  <div style={{ fontWeight: 600, color: '#a3a3a3', fontSize: '1.1rem', marginBottom: '0.5rem' }}>3rd</div>
+                  <div style={{ background: 'linear-gradient(180deg,#e0e7ff,#cbd5e1)', borderRadius: '1rem 1rem 0 0', width: '100px', height: '70px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(99,102,241,0.10)', border: '3px solid #a3a3a3' }}>
+                    <div style={{ fontWeight: 700, color: leaderboard[2]?.name === displayName ? '#6366f1' : '#64748b', fontSize: '1.1rem', marginBottom: '0.2rem' }}>{leaderboard[2]?.name || '-'}</div>
+                    <div style={{ color: '#334155', fontSize: '1rem' }}>Score: <b>{leaderboard[2]?.score ?? '-'}</b></div>
+                    <div style={{ color: leaderboard[2]?.regressions > 0 ? '#dc2626' : '#334155', fontSize: '0.9rem' }}>Reg: {leaderboard[2]?.regressions ?? '-'}</div>
+                  </div>
+                </div>
+              </div>
+              {/* List for the rest */}
+              <div style={{ width: '100%', marginTop: '1.5rem', background: '#fff', borderRadius: '1rem', boxShadow: '0 2px 12px rgba(99,102,241,0.08)', padding: '1.5rem 1rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1.1rem' }}>
+                  <thead>
+                    <tr style={{ background: '#e0e7ff' }}>
+                      <th style={{ padding: '0.5rem', borderRadius: '0.5rem 0 0 0.5rem' }}>Rank</th>
+                      <th style={{ padding: '0.5rem' }}>Name</th>
+                      <th style={{ padding: '0.5rem' }}>Score</th>
+                      <th style={{ padding: '0.5rem' }}>Regressions</th>
+                      <th style={{ padding: '0.5rem', borderRadius: '0 0.5rem 0.5rem 0' }}>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboard.slice(3, 10).map((entry, idx) => (
+                      <tr key={idx + 3} style={{ background: (idx + 3) % 2 === 0 ? '#f1f5f9' : '#fff' }}>
+                        <td style={{ padding: '0.5rem', textAlign: 'center', fontWeight: 600, color: '#64748b' }}>{idx + 4}</td>
+                        <td style={{ padding: '0.5rem', fontWeight: entry.name === displayName ? 700 : 400, color: entry.name === displayName ? '#6366f1' : '#334155', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>{entry.name}</td>
+                        <td style={{ padding: '0.5rem', textAlign: 'center' }}>{entry.score}</td>
+                        <td style={{ padding: '0.5rem', textAlign: 'center', color: entry.regressions > 0 ? '#dc2626' : '#334155' }}>{entry.regressions}</td>
+                        <td style={{ padding: '0.5rem', fontSize: '0.95rem', color: '#64748b' }}>{new Date(entry.date).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
         </div>
       )}
