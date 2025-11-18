@@ -244,15 +244,33 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
 
 
   // Squash bug
-  const squashBug = (idx: number) => {
+  // Track which bug is animating to prevent double squashes
+  const [animatingBug, setAnimatingBug] = useState<number | null>(null);
+
+  const squashBug = (idx: number, e?: React.MouseEvent) => {
     if (!running) return;
+    if (animatingBug !== null) return; // Prevent double squashes
+    // Optional: check if click is inside SVG (for more accuracy)
+    if (e && e.target instanceof SVGElement) {
+      const rect = e.target.getBoundingClientRect();
+      if (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom
+      ) {
+        return;
+      }
+    }
     setScore(s => s + 1);
     setSquashedIdx(idx);
+    setAnimatingBug(idx);
     playSquashSound();
     setTimeout(() => {
       setBugs(bugs => bugs.map((bug, i) => (i === idx ? getRandomBugPosition() : bug)));
       setSquashedIdx(null);
-    }, 200);
+      setAnimatingBug(null);
+    }, 180);
   };
 
 
@@ -385,8 +403,8 @@ const BugSquashGame: React.FC<BugSquashGameProps> = ({ view: propView, setView: 
               <div
                 key={"bug-" + idx}
                 className={`bug-squash-bug${squashedIdx === idx ? ' squashed' : ''}`}
-                style={{ left: bug.left, top: bug.top, width: BUG_SIZE, height: BUG_SIZE }}
-                onClick={() => squashBug(idx)}
+                style={{ left: bug.left, top: bug.top, width: BUG_SIZE, height: BUG_SIZE, pointerEvents: animatingBug === idx ? 'none' : 'auto' }}
+                onMouseDown={e => squashBug(idx, e)}
               >
                 {/* SVG bug icon */}
                 <svg width={BUG_SIZE} height={BUG_SIZE} viewBox="0 0 40 40">
