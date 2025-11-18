@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css'
 import BugSquashGame from './BugSquashGame';
+import Thanks from './Thanks';
 
 function App() {
   // Navigation state: 'home', 'bug', 'leader'
-  const [view, setView] = React.useState<'home' | 'bug' | 'leader'>('home');
+  const [view, setView] = React.useState<'home' | 'bug' | 'leader' | 'thanks'>('home');
 
   // Top navigation bar
   const navStyle = {
@@ -38,6 +39,7 @@ function App() {
         <button style={btnStyle(view === 'home')} onClick={() => setView('home')}>Home</button>
         <button style={btnStyle(view === 'bug')} onClick={() => setView('bug')}>Bug Squash</button>
         <button style={btnStyle(view === 'leader')} onClick={() => setView('leader')}>Leader</button>
+        <button style={btnStyle(view === 'thanks')} onClick={() => setView('thanks')}>Thanks</button>
       </nav>
       {view === 'home' && (
         <section className="hero-section" style={{
@@ -110,6 +112,9 @@ function App() {
       )}
       {view === 'leader' && (
         <BugSquashGame view="leader" setView={setView} />
+      )}
+      {view === 'thanks' && (
+        <Thanks />
       )}
     </div>
   );
