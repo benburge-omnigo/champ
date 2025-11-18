@@ -56,30 +56,19 @@ function App() {
           }}>
             Welcome to the Omnigo Champion app. Celebrate your achievements and explore new challenges!
           </p>
+          <a href="/bug-squash" style={{
+            padding: '0.75rem 2rem',
+            fontSize: '1.25rem',
+            background: '#6366f1',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '1rem',
+            cursor: 'pointer',
+            textDecoration: 'none',
+            marginTop: '2rem',
+            display: 'inline-block',
+          }}>Start Bug Squash Game</a>
         </div>
-      </section>
-      {/* Start Game CTA Section */}
-      <section style={{
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '2rem 0',
-      }}>
-        <h2 style={{ color: '#6366f1', fontWeight: 700, fontSize: '2rem', marginBottom: '1rem' }}>Ready to Squash Some Bugs?</h2>
-        <a href="/bug-squash" style={{
-          padding: '0.75rem 2rem',
-          fontSize: '1.25rem',
-          background: '#6366f1',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '1rem',
-          cursor: 'pointer',
-          textDecoration: 'none',
-          marginBottom: '2rem',
-          display: 'inline-block',
-        }}>Start Bug Squash Game</a>
       </section>
     </>
   );

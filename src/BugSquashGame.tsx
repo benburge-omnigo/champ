@@ -28,12 +28,16 @@ function getRandomCodePosition() {
 const BugSquashGame: React.FC = () => {
 
 
+
   const [score, setScore] = useState(0);
   const [regressions, setRegressions] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_TIME);
   const [bugs, setBugs] = useState(Array.from({ length: BUG_COUNT }, getRandomBugPosition));
   const [codes, setCodes] = useState(Array.from({ length: CODE_COUNT }, getRandomCodePosition));
   const [running, setRunning] = useState(false);
+  const [displayName, setDisplayName] = useState(() => localStorage.getItem('displayName') || '');
+  const [showModal, setShowModal] = useState(false);
+  const [modalInput, setModalInput] = useState('');
   const timerRef = useRef<number | null>(null);
 
 
@@ -74,8 +78,31 @@ const BugSquashGame: React.FC = () => {
 
 
 
+
+  // Modal logic for display name
+  useEffect(() => {
+    if (!displayName) {
+      setShowModal(true);
+    }
+  }, [displayName]);
+
+  const handleModalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = modalInput.trim();
+    if (name) {
+      setDisplayName(name);
+      localStorage.setItem('displayName', name);
+      setShowModal(false);
+      setModalInput('');
+    }
+  };
+
   // Reset game
   const startGame = () => {
+    if (!displayName) {
+      setShowModal(true);
+      return;
+    }
     setScore(0);
     setRegressions(0);
     setTimeLeft(GAME_TIME);
@@ -104,14 +131,80 @@ const BugSquashGame: React.FC = () => {
   return (
     <div className="bug-squash-container">
       <h2>Bug Squash Game</h2>
+      {displayName && (
+        <div style={{ fontSize: '1.1rem', color: '#6366f1', marginBottom: '0.5rem' }}>
+          Player: <b>{displayName}</b>
+        </div>
+      )}
       <div className="bug-squash-info">
         <span>Bugs Fixed: <b>{score}</b></span>
         <span>Regressions: <b style={{ color: regressions > 0 ? '#dc2626' : '#334155' }}>{regressions}</b></span>
         <span>Time: <b>{timeLeft}</b>s</span>
       </div>
-      <button className="bug-squash-start" onClick={startGame} disabled={running}>
+      <button className="bug-squash-start" onClick={startGame} disabled={running || showModal}>
         {running ? 'Game Running...' : 'Start Game'}
       </button>
+      {/* Modal for display name input */}
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(30,41,59,0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <form onSubmit={handleModalSubmit} style={{
+            background: '#fff',
+            borderRadius: '1.5rem',
+            boxShadow: '0 8px 32px rgba(99,102,241,0.18)',
+            padding: '2.5rem 2rem',
+            minWidth: '320px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}>
+            <h3 style={{ color: '#6366f1', fontWeight: 700, fontSize: '1.5rem', marginBottom: '1rem' }}>Enter Display Name</h3>
+            <input
+              type="text"
+              value={modalInput}
+              onChange={e => setModalInput(e.target.value)}
+              placeholder="Your name..."
+              style={{
+                fontSize: '1.1rem',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.75rem',
+                border: '2px solid #6366f1',
+                marginBottom: '1.5rem',
+                width: '100%',
+                outline: 'none',
+              }}
+              autoFocus
+              maxLength={32}
+            />
+            <button
+              type="submit"
+              style={{
+                padding: '0.75rem 2rem',
+                fontSize: '1.1rem',
+                background: '#6366f1',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '1rem',
+                cursor: modalInput.trim() ? 'pointer' : 'not-allowed',
+                opacity: modalInput.trim() ? 1 : 0.6,
+                fontWeight: 600,
+                boxShadow: '0 2px 8px rgba(99,102,241,0.10)',
+              }}
+              disabled={!modalInput.trim()}
+            >Continue</button>
+          </form>
+        </div>
+      )}
   <div className="bug-squash-game-area" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
         {/* Bugs */}
         {bugs.map((bug, idx) => (
