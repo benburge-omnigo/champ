@@ -1,3 +1,4 @@
+import React from 'react';
 import './App.css'
 import BugSquashGame from './BugSquashGame';
 
@@ -5,8 +6,9 @@ function App() {
   // ...existing code...
 
   // Simple route handling without dependencies
-  const path = window.location.pathname;
-  if (path === '/bug-squash') {
+  // Show hero and CTA, then BugSquashGame after clicking CTA
+  const [showGame, setShowGame] = React.useState(false);
+  if (showGame) {
     return <BugSquashGame />;
   }
   return (
@@ -22,7 +24,7 @@ function App() {
         gap: '3rem',
       }}>
         <img
-          src="/benomnigo2.png"
+          src="/champ/benomnigo2.png"
           alt="Omnigo Champion"
           style={{
             width: '700px',
@@ -56,22 +58,28 @@ function App() {
           }}>
             Welcome to the Omnigo Champion app. Celebrate your achievements and explore new challenges!
           </p>
-          <a href="/bug-squash" style={{
-            padding: '0.75rem 2rem',
-            fontSize: '1.25rem',
-            background: '#6366f1',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '1rem',
-            cursor: 'pointer',
-            textDecoration: 'none',
-            marginTop: '2rem',
-            display: 'inline-block',
-          }}>Start Bug Squash Game</a>
+          <button
+            style={{
+              padding: '0.75rem 2rem',
+              fontSize: '1.25rem',
+              background: '#6366f1',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '1rem',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              marginTop: '2rem',
+              display: 'inline-block',
+            }}
+            onClick={() => setShowGame(true)}
+          >
+            Start Bug Squash Game
+          </button>
         </div>
       </section>
     </>
   );
+  // ...existing code removed: always show BugSquashGame
 }
 
 export default App
