@@ -32,12 +32,28 @@
 }
 .bug-squash-bug {
   position: absolute;
-  background: #f59e42;
-  border-radius: 50%;
-  border: 3px solid #eab308;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
   transition: left 0.3s, top 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bug-squash-bug:hover {
+  filter: brightness(1.2) drop-shadow(0 0 8px #f59e42);
+}
+
+.bug-squash-code {
+  position: absolute;
+  cursor: pointer;
+  transition: left 0.3s, top 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.bug-squash-code:hover {
+  filter: brightness(1.1) drop-shadow(0 0 8px #6366f1);
 }
 .bug-squash-end {
   position: absolute;
