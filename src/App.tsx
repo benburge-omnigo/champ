@@ -24,7 +24,7 @@ function App() {
         gap: '3rem',
       }}>
         <img
-          src="/champ/benomnigo2.png"
+          src="benomnigo2.png"
           alt="Omnigo Champion"
           style={{
             width: '700px',
