@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+// Leaderboard API constants
+const API_URL = 'https://bafgo.com/api/dynamic/champleader';
+const API_TOKEN = '5219f6fd95dc4e6cc485ba78664179306e697650700c727b694e049e7f0e9316';
 import './BugSquashGame.css';
 
 const GAME_WIDTH = 900;
@@ -38,7 +41,80 @@ const BugSquashGame: React.FC = () => {
   const [displayName, setDisplayName] = useState(() => localStorage.getItem('displayName') || '');
   const [showModal, setShowModal] = useState(false);
   const [modalInput, setModalInput] = useState('');
+  const [leaderboard, setLeaderboard] = useState<Array<{name: string, score: number, regressions: number, date: string}>>([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [errorLeaderboard, setErrorLeaderboard] = useState('');
   const timerRef = useRef<number | null>(null);
+  // Fetch leaderboard from API
+  const fetchLeaderboard = async () => {
+    setLoadingLeaderboard(true);
+    setErrorLeaderboard('');
+    try {
+      const res = await fetch(API_URL, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!res.ok) throw new Error('Failed to fetch leaderboard');
+      const data = await res.json();
+      // Expecting { success, items: [...] }
+      if (data && data.items && Array.isArray(data.items)) {
+        // Map, sort, and filter to only top score per unique name
+        const mapped = data.items.map((item: any) => ({
+          name: item.name,
+          score: item.score,
+          regressions: item.regressions,
+          date: item.date || item.createdAt || '',
+        }));
+        // Sort by score desc, regressions asc
+        mapped.sort((a: {score: number, regressions: number}, b: {score: number, regressions: number}) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return a.regressions - b.regressions;
+        });
+        // Only keep top score for each unique name
+        const uniqueLeaderboard: typeof mapped = [];
+        const seenNames = new Set<string>();
+        for (const entry of mapped) {
+          if (!seenNames.has(entry.name)) {
+            uniqueLeaderboard.push(entry);
+            seenNames.add(entry.name);
+          }
+        }
+        setLeaderboard(uniqueLeaderboard);
+      } else {
+        setLeaderboard([]);
+      }
+    } catch (err: any) {
+      setErrorLeaderboard(err.message || 'Error loading leaderboard');
+    } finally {
+      setLoadingLeaderboard(false);
+    }
+  };
+
+  // Post score to API after game ends
+  const postScore = async () => {
+    if (!displayName || score === 0) return;
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: displayName,
+          score,
+          regressions,
+          date: new Date().toISOString(),
+        }),
+      });
+      fetchLeaderboard();
+    } catch (err) {
+      // Optionally handle error
+    }
+  };
 
 
 
@@ -76,6 +152,19 @@ const BugSquashGame: React.FC = () => {
     }, 1000);
     return () => clearInterval(timerRef.current!);
   }, [running]);
+
+  // When game ends, post score
+  useEffect(() => {
+    if (!running && timeLeft === 0) {
+      postScore();
+    }
+    // eslint-disable-next-line
+  }, [running, timeLeft]);
+
+  // Fetch leaderboard on mount
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
 
 
 
@@ -206,7 +295,7 @@ const BugSquashGame: React.FC = () => {
           </form>
         </div>
       )}
-  <div className="bug-squash-game-area" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
+      <div className="bug-squash-game-area" style={{ width: GAME_WIDTH, height: GAME_HEIGHT }}>
         {/* Bugs */}
         {bugs.map((bug, idx) => (
           <div
@@ -260,7 +349,6 @@ const BugSquashGame: React.FC = () => {
             <p>🎉 Omnigo Champion! 🎉</p>
           </div>
         )}
-        
       </div>
       <div className="bug-squash-instructions">
         <span style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}>
@@ -278,6 +366,49 @@ const BugSquashGame: React.FC = () => {
         <div style={{ fontSize: '1rem', marginTop: '0.25rem', color: '#64748b' }}>
           Click bugs to fix them. Avoid clicking code blocks, or you'll cause a regression and lose points!
         </div>
+      </div>
+      {/* Leaderboard Section */}
+      <div className="bug-squash-leaderboard" style={{ marginTop: '2.5rem', background: '#f3f4f6', borderRadius: '1.5rem', boxShadow: '0 4px 24px rgba(99,102,241,0.10)', padding: '2rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+        <h3 style={{ color: '#6366f1', fontWeight: 700, fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>Leaderboard</h3>
+        <button onClick={fetchLeaderboard} style={{ marginBottom: '1rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '0.75rem', padding: '0.5rem 1.5rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 600 }}>Refresh</button>
+        {loadingLeaderboard ? (
+          <div style={{ textAlign: 'center', color: '#64748b' }}>Loading...</div>
+        ) : errorLeaderboard ? (
+          <div style={{ color: '#dc2626', textAlign: 'center' }}>{errorLeaderboard}</div>
+        ) : leaderboard.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#64748b' }}>No scores yet.</div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1.1rem' }}>
+            <thead>
+              <tr style={{ background: '#e0e7ff' }}>
+                <th style={{ padding: '0.5rem', borderRadius: '0.5rem 0 0 0.5rem' }}>Name</th>
+                <th style={{ padding: '0.5rem' }}>Score</th>
+                <th style={{ padding: '0.5rem' }}>Regressions</th>
+                <th style={{ padding: '0.5rem', borderRadius: '0 0.5rem 0.5rem 0' }}>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboard.slice(0, 10).map((entry, idx) => (
+                <tr key={idx} style={{ background: idx % 2 === 0 ? '#fff' : '#f1f5f9' }}>
+                  <td style={{ padding: '0.5rem', fontWeight: entry.name === displayName ? 700 : 400, color: entry.name === displayName ? '#6366f1' : '#334155', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {entry.name}
+                    {idx === 0 && (
+                      <span title="Top Score" style={{ verticalAlign: 'middle' }}>
+                        {/* Trophy SVG */}
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="gold" style={{ marginLeft: '0.2rem' }}>
+                          <path d="M7 2v2H3v2c0 3.31 2.69 6 6 6h1v3H8v2h8v-2h-2v-3h1c3.31 0 6-2.69 6-6V4h-4V2H7zm10 4c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4V4h10v2z"/>
+                        </svg>
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: '0.5rem', textAlign: 'center' }}>{entry.score}</td>
+                  <td style={{ padding: '0.5rem', textAlign: 'center', color: entry.regressions > 0 ? '#dc2626' : '#334155' }}>{entry.regressions}</td>
+                  <td style={{ padding: '0.5rem', fontSize: '0.95rem', color: '#64748b' }}>{new Date(entry.date).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
