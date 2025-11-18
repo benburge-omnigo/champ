@@ -1,8 +1,14 @@
 import './App.css'
+import BugSquashGame from './BugSquashGame';
 
 function App() {
   // ...existing code...
 
+  // Simple route handling without dependencies
+  const path = window.location.pathname;
+  if (path === '/bug-squash') {
+    return <BugSquashGame />;
+  }
   return (
     <>
       <section className="hero-section" style={{
@@ -52,9 +58,31 @@ function App() {
           </p>
         </div>
       </section>
-      {/* ...existing code... */}
+      {/* Start Game CTA Section */}
+      <section style={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '2rem 0',
+      }}>
+        <h2 style={{ color: '#6366f1', fontWeight: 700, fontSize: '2rem', marginBottom: '1rem' }}>Ready to Squash Some Bugs?</h2>
+        <a href="/bug-squash" style={{
+          padding: '0.75rem 2rem',
+          fontSize: '1.25rem',
+          background: '#6366f1',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '1rem',
+          cursor: 'pointer',
+          textDecoration: 'none',
+          marginBottom: '2rem',
+          display: 'inline-block',
+        }}>Start Bug Squash Game</a>
+      </section>
     </>
-  )
+  );
 }
 
 export default App
