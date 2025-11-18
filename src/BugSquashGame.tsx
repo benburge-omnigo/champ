@@ -51,6 +51,7 @@ const BugSquashGame: React.FC = () => {
     return () => clearInterval(bugInterval);
   }, [running]);
 
+
   // Move code blocks every 300ms
   useEffect(() => {
     if (!running) return;
@@ -259,6 +260,24 @@ const BugSquashGame: React.FC = () => {
             <p>🎉 Omnigo Champion! 🎉</p>
           </div>
         )}
+        
+      </div>
+      <div className="bug-squash-instructions">
+        <span style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}>
+          <svg width="32" height="32" viewBox="0 0 40 40" style={{ verticalAlign: 'middle' }}>
+            <ellipse cx="20" cy="24" rx="12" ry="10" fill="#4B2E09" />
+            <ellipse cx="20" cy="16" rx="8" ry="7" fill="#8B5C2A" />
+            <circle cx="20" cy="13" r="3" fill="#F59E42" />
+            <line x1="8" y1="24" x2="0" y2="10" stroke="#222" strokeWidth="2" />
+            <line x1="32" y1="24" x2="40" y2="10" stroke="#222" strokeWidth="2" />
+            <line x1="12" y1="34" x2="6" y2="40" stroke="#222" strokeWidth="2" />
+            <line x1="28" y1="34" x2="34" y2="40" stroke="#222" strokeWidth="2" />
+          </svg>
+        </span>
+        <b>Squash the bugs</b> <span style={{ color: '#6366f1', fontWeight: 500 }}>&mdash; but avoid causing regressions!</span>
+        <div style={{ fontSize: '1rem', marginTop: '0.25rem', color: '#64748b' }}>
+          Click bugs to fix them. Avoid clicking code blocks, or you'll cause a regression and lose points!
+        </div>
       </div>
     </div>
   );
