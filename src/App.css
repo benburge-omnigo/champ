@@ -1,3 +1,22 @@
+/* Matrix-themed animated background effect */
+.matrix-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.matrix-canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  opacity: 0.18;
+  filter: blur(0.5px) brightness(0.8);
+}
 #root {
   max-width: 1280px;
   margin: 0 auto;

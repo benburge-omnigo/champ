@@ -3,6 +3,54 @@ import './App.css'
 import BugSquashGame from './BugSquashGame';
 import Thanks from './Thanks';
 
+function MatrixBackground() {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.width = w;
+    canvas.height = h;
+
+    // Matrix columns
+    const fontSize = 22;
+    const columns = Math.floor(w / fontSize);
+    const drops: number[] = Array(columns).fill(1);
+    const chars = 'アァイィウヴエカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    function draw() {
+      if (!ctx) return;
+      ctx.fillStyle = 'rgba(40, 40, 60, 0.18)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.font = fontSize + 'px monospace';
+      ctx.fillStyle = '#4ade80'; // Soft green
+      for (let i = 0; i < columns; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > h && Math.random() > 0.985) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      animationFrameId = requestAnimationFrame(draw);
+    }
+    draw();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  return (
+    <div className="matrix-bg">
+      <canvas ref={canvasRef} className="matrix-canvas" />
+    </div>
+  );
+}
+
 function App() {
   // Navigation state: 'home', 'bug', 'leader'
   const [view, setView] = React.useState<'home' | 'bug' | 'leader' | 'thanks'>('home');
@@ -34,7 +82,8 @@ function App() {
   });
 
   return (
-    <div style={{ paddingTop: '4.5rem' }}>
+    <div style={{ paddingTop: '4.5rem', position: 'relative', minHeight: '100vh' }}>
+      <MatrixBackground />
       <nav style={navStyle}>
         <button style={btnStyle(view === 'home')} onClick={() => setView('home')}>Home</button>
         <button style={btnStyle(view === 'bug')} onClick={() => setView('bug')}>Bug Squash</button>
